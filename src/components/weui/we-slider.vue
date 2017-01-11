@@ -45,8 +45,6 @@
                 this.startScreenX = evt.screenX
                 this.startScreenY = evt.screenY
                 this.startPercentStyle = this.percentStyle
-
-                const self = this
                 document.body.addEventListener('mousemove', this.mousemove)
                 document.body.addEventListener('mouseup', this.mouseup)
             },

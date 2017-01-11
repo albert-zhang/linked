@@ -1,20 +1,27 @@
 // import LinkedImg from '../img/js'
 
+import FileFormat from '../../file-format'
+
 export default {
     components: {
         // LinkedImg
     },
     data() {
         return {
-            a: 1
+            imgs: []
         }
     },
+    created() {
+        this.imgs = FileFormat.imgs
+    },
     methods: {
-        asdf() {
-            console.log('asdf')
+        onResize(dt, img) {
+            img.width += dt.dx
+            img.height += dt.dy
         },
-        asdf2() {
-            console.log('asdf2222')
+        onMove(dt, img) {
+            img.x += dt.dx
+            img.y += dt.dy
         }
     }
 }

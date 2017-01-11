@@ -3,13 +3,17 @@ export default {
     imgs: [
         {
             id: '9dd4e461268c8034f5c8564e155c67a6',
-            file: 'c4ca4238a0b923820dcc509a6f75849b.jpg',
+            file: '1.jpg',
+            x: 30,
+            y: 100,
             width: 145,
             height: 155
         },
         {
             id: '415290769594460e2e485922904f345d',
-            file: 'c998dd18a0b923820dcc509a6f75849c.jpg',
+            x: 240,
+            y: 124,
+            file: '2.jpg',
             width: 205,
             height: 105
         }

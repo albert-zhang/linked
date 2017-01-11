@@ -3,20 +3,31 @@ import Vue from 'vue'
 import './scss.scss'
 
 Vue.component('linked-img', {
+    props: {
+        data: {
+            type: Object,
+            required: true
+        }
+    },
     data() {
         return {
-            src: require('assets/logo.png'),
-            borderColor: '#666',
-            isEditing: true
+            isEditing: false,
+            startScreenX: 0,
+            startScreenY: 0,
+            isMousedownForResizing: false,
+            isMousedownForMoving: false
         }
     },
     computed: {
-        svgStyle() {
+        borderColor() {
+            return this.isEditing ? '#f00' : '#666'
+        },
+        containerStyle() {
             const obj = {
-                left: `34px`,
-                top: `20px`,
-                width: `${this.width}px`,
-                height: `${this.height}px`,
+                left: `${this.data.x}px`,
+                top: `${this.data.y}px`,
+                width: `${this.data.width}px`,
+                height: `${this.data.height}px`,
                 border: `2px solid ${this.borderColor}`
             }
             if (this.isEditing) {
@@ -24,25 +35,73 @@ Vue.component('linked-img', {
             }
             return obj
         },
-        width() {
-            return 100
-        },
-        height() {
-            return 100
+        imgSrc() {
+            return `static/img/${this.data.file}`
         }
     },
     methods: {
         onClick() {
-            this.borderColor = '#f00'
+            this.isEditing = !this.isEditing
+        },
+        onResizeHandleMousedown(evt) {
+            if (evt.target !== evt.currentTarget) {
+                return
+            }
+            this.isMousedownForResizing = true
+            this.startScreenX = evt.screenX
+            this.startScreenY = evt.screenY
+            document.body.addEventListener('mousemove', this.mousemove)
+            document.body.addEventListener('mouseup', this.mouseup)
+        },
+        onSvgMousedown(evt) {
+            this.isMousedownForMoving = true
+            this.startScreenX = evt.screenX
+            this.startScreenY = evt.screenY
+            document.body.addEventListener('mousemove', this.mousemove)
+            document.body.addEventListener('mouseup', this.mouseup)
+        },
+        mousemove(evt) {
+            if (this.isMousedownForResizing) {
+                const dx = evt.screenX - this.startScreenX
+                const dy = evt.screenY - this.startScreenY
+                this.$emit('resize', {
+                    dx: dx,
+                    dy: dy
+                })
+                this.startScreenX = evt.screenX
+                this.startScreenY = evt.screenY
+
+            } else if (this.isMousedownForMoving) {
+                const dx = evt.screenX - this.startScreenX
+                const dy = evt.screenY - this.startScreenY
+                this.$emit('move', {
+                    dx: dx,
+                    dy: dy
+                })
+                this.startScreenX = evt.screenX
+                this.startScreenY = evt.screenY
+            }
+        },
+        mouseup(evt) {
+            if (this.isMousedownForResizing) {
+                this.isMousedownForResizing = false
+                document.body.removeEventListener('mousemove', this.mousemove)
+                document.body.removeEventListener('mouseup', this.mouseup)
+
+            } else if (this.isMousedownForMoving) {
+                this.isMousedownForMoving = false
+                document.body.removeEventListener('mousemove', this.mousemove)
+                document.body.removeEventListener('mouseup', this.mouseup)
+            }
         }
     },
     render(h) {
         return (
-            <div class="img" style={this.svgStyle} onClick={this.onClick}>
-    <svg width={this.width} height={this.height}>
-    <image xlinkHref={this.src} x="0" y="0" width={this.width} height={this.height}/>
+            <div class="img" style={this.containerStyle} onClick={this.onClick}>
+            <svg width={this.data.width} height={this.data.height} onMousedown={this.onSvgMousedown}>
+                <image xlinkHref={this.imgSrc} x="0" y="0" width={this.data.width} height={this.data.height} preserveAspectRatio="none"/>
             </svg>
-            <div style="position: absolute; bottom: -10px; right: -10px; width: 20px; height: 20px; background-color: #f00;">&nbsp;</div>
+            <div class="resize-handle" onMousedown={this.onResizeHandleMousedown}>&nbsp;</div>
         </div>
         )
     }

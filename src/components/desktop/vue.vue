@@ -1,7 +1,8 @@
 <template>
     <div class="desktop">
         <div class="paper">
-            <linked-img/>
+            <linked-img v-for="img in imgs" :key="img.id" :data="img"
+                        @resize="onResize($event, img)" @move="onMove($event, img)"/>
         </div>
     </div>
 </template>
