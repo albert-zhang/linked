@@ -1,0 +1,20 @@
+.desktop {
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-flow: row nowrap;
+
+    .paper {
+        flex: 1;
+    }
+
+    .img {
+        position: absolute;
+        z-index: 10;
+    }
+
+    .link {
+        position: absolute;
+        z-index: 20;
+    }
+}
