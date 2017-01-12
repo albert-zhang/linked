@@ -1,11 +1,18 @@
 import Vue from 'vue'
-
-import './scss.scss'
+import Consts from '../../consts'
 
 Vue.component('linked-img', {
     props: {
         data: {
             type: Object,
+            required: true
+        },
+        viewportWidth: {
+            type: Number,
+            required: true
+        },
+        viewportHeight: {
+            type: Number,
             required: true
         }
     },
@@ -22,18 +29,20 @@ Vue.component('linked-img', {
         borderColor() {
             return this.isEditing ? '#f00' : '#666'
         },
-        containerStyle() {
-            const obj = {
-                left: `${this.data.x}px`,
-                top: `${this.data.y}px`,
-                width: `${this.data.width}px`,
-                height: `${this.data.height}px`,
-                border: `2px solid ${this.borderColor}`
-            }
-            if (this.isEditing) {
-                obj.boxShadow = '0 0 50px #666'
-            }
-            return obj
+        rectStyle() {
+            return `fill: none; stroke-width: 4; stroke: ${this.borderColor}`
+        },
+        circleCx() {
+            return this.data.width - 10
+        },
+        circleCy() {
+            return this.data.height - 10
+        },
+        x() {
+            return this.data.x + (Consts.paperFullWidth - this.viewportWidth) * 0.5
+        },
+        y() {
+            return this.data.y + (Consts.paperFullHeight - this.viewportHeight) * 0.5
         },
         imgSrc() {
             return `static/img/${this.data.file}`
@@ -97,12 +106,11 @@ Vue.component('linked-img', {
     },
     render(h) {
         return (
-            <div class="img" style={this.containerStyle} onClick={this.onClick}>
-            <svg width={this.data.width} height={this.data.height} onMousedown={this.onSvgMousedown}>
+            <svg x={this.x} y={this.y} width={this.data.width} height={this.data.height} onMousedown={this.onSvgMousedown} onClick={this.onClick}>
                 <image xlinkHref={this.imgSrc} x="0" y="0" width={this.data.width} height={this.data.height} preserveAspectRatio="none"/>
+                <rect width={this.data.width} height={this.data.height} rx="4" ry="4" style={this.rectStyle}/>
+                <circle cx={this.circleCx} cy={this.circleCy} r="10" fill="red" onMousedown={this.onResizeHandleMousedown}/>
             </svg>
-            <div class="resize-handle" onMousedown={this.onResizeHandleMousedown}>&nbsp;</div>
-        </div>
         )
     }
 })

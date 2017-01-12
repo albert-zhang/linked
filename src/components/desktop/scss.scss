@@ -1,3 +1,5 @@
+@import "~assets/defs.scss";
+
 .desktop {
     position: relative;
     overflow: hidden;
@@ -5,16 +7,16 @@
     flex-flow: row nowrap;
 
     .paper {
-        flex: 1;
-    }
-
-    .img {
         position: absolute;
-        z-index: 10;
-    }
+        border: 1px solid #ff0;
+        background-image: url('~assets/imgs/texture6.png');
 
-    .link {
-        position: absolute;
-        z-index: 20;
+        .center {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            top: #{($paperFullWidth - 100) * 0.5}px;
+            left: #{($paperFullHeight - 100) * 0.5}px;
+        }
     }
 }
