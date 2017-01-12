@@ -12,6 +12,7 @@
         background-image: url('~assets/imgs/texture6.png');
 
         .center {
+            pointer-events: none;
             position: absolute;
             width: 100px;
             height: 100px;

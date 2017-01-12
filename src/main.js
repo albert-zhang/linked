@@ -5,6 +5,7 @@ import Vue from 'vue'
 import App from './App'
 
 import './components/linked-img/js'
+import './components/linked-link/js'
 
 /* eslint-disable no-new */
 new Vue({

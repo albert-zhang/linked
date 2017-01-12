@@ -1,6 +1,5 @@
 <template>
     <div class="tools">
-        <we-slider></we-slider>
     </div>
 </template>
 <script>

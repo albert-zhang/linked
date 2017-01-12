@@ -3,11 +3,11 @@ import FileFormat from '../../file-format'
 
 export default {
     components: {
-        // LinkedImg
     },
     data() {
         return {
             imgs: [],
+            links: [],
             paperScale: 1,
             paperTx: 0,
             paperTy: 0,
@@ -35,6 +35,7 @@ export default {
     },
     created() {
         this.imgs = FileFormat.imgs
+        this.links = FileFormat.links
         this.$nextTick(() => {
             this.$el.addEventListener('mousewheel', this.onMousewheel)
         })
@@ -48,8 +49,21 @@ export default {
     },
     methods: {
         onResize(dt, img) {
+            const orgW = img.width
             img.width += dt.dx / this.paperScale
             img.height += dt.dy / this.paperScale
+            const f = img.width / orgW
+
+            this.links.forEach(link => {
+                if (link.from.id === img.id) {
+                    link.from.x *= f
+                    link.from.y *= f
+                }
+                if (link.to.id === img.id) {
+                    link.to.x *= f
+                    link.to.y *= f
+                }
+            })
         },
         onMove(dt, img) {
             img.x += dt.dx / this.paperScale
@@ -64,10 +78,7 @@ export default {
             }
         },
         onMousedownForDragging(evt) {
-            if (evt.target === this.$el || evt.target === this.$refs.paper ||
-                evt.target === this.$refs.svg ||
-                evt.target === this.$refs.center ||
-                evt.target === this.$refs.centerSvg) {
+            if (evt.target === this.$el || evt.target === this.$refs.paper || evt.target === this.$refs.svg) {
                 this.dragStartScreenX = evt.screenX
                 this.dragStartScreenY = evt.screenY
                 this.isMousedownForDragging = true

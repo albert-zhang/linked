@@ -73,9 +73,18 @@ Vue.component('linked-img', {
             if (this.isMousedownForResizing) {
                 const dx = evt.screenX - this.startScreenX
                 const dy = evt.screenY - this.startScreenY
+                let dx2 = 0
+                let dy2 = 0
+                if (Math.abs(dx) > Math.abs(dy)) {
+                    dx2 = dx
+                    dy2 = dy
+                } else {
+                    dx2 = dy
+                    dy2 = dx
+                }
                 this.$emit('resize', {
-                    dx: dx,
-                    dy: dy
+                    dx: dx2,
+                    dy: this.data.height / this.data.width * dx2
                 })
                 this.startScreenX = evt.screenX
                 this.startScreenY = evt.screenY
