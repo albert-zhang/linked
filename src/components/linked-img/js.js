@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import Consts from '../../consts'
+import Store from '../../store'
 
 Vue.component('linked-img', {
     props: {
@@ -33,10 +34,10 @@ Vue.component('linked-img', {
             return `fill: none; stroke-width: 4; stroke: ${this.borderColor}`
         },
         circleCx() {
-            return this.data.width - 10
+            return this.x + this.data.width - 10
         },
         circleCy() {
-            return this.data.height - 10
+            return this.y + this.data.height - 10
         },
         x() {
             return this.data.x + (Consts.paperFullWidth - this.viewportWidth) * 0.5
@@ -45,24 +46,34 @@ Vue.component('linked-img', {
             return this.data.y + (Consts.paperFullHeight - this.viewportHeight) * 0.5
         },
         imgSrc() {
-            return `static/img/${this.data.file}`
+            return `file://${Store.fileRoot}/${this.data.file}`
         }
+    },
+    created() {
+        const self = this
     },
     methods: {
         onClick() {
             this.isEditing = !this.isEditing
         },
         onResizeHandleMousedown(evt) {
-            if (evt.target !== evt.currentTarget) {
-                return
-            }
             this.isMousedownForResizing = true
             this.startScreenX = evt.screenX
             this.startScreenY = evt.screenY
             document.body.addEventListener('mousemove', this.mousemove)
             document.body.addEventListener('mouseup', this.mouseup)
         },
-        onSvgMousedown(evt) {
+        onImageMousedown(evt) {
+            if (evt.ctrlKey) {
+                Store.svgPoint.x = evt.clientX
+                Store.svgPoint.y = evt.clientY
+                const p = Store.svgPoint.matrixTransform(Store.svg.getScreenCTM().inverse())
+                const x = p.x / Store.paperScale - this.x
+                const y = p.y / Store.paperScale - this.y
+                console.log(x + ', ' + y)
+                // TODO: here
+                return
+            }
             this.isMousedownForMoving = true
             this.startScreenX = evt.screenX
             this.startScreenY = evt.screenY
@@ -115,11 +126,12 @@ Vue.component('linked-img', {
     },
     render(h) {
         return (
-            <svg x={this.x} y={this.y} width={this.data.width} height={this.data.height} onMousedown={this.onSvgMousedown} onClick={this.onClick}>
-                <image xlinkHref={this.imgSrc} x="0" y="0" width={this.data.width} height={this.data.height} preserveAspectRatio="none"/>
-                <rect width={this.data.width} height={this.data.height} rx="4" ry="4" style={this.rectStyle}/>
+            <g>
+                <image xlinkHref={this.imgSrc} x={this.x} y={this.y} width={this.data.width} height={this.data.height} preserveAspectRatio="none"
+                    onMousedown={this.onImageMousedown}/>
+                <rect x={this.x} y={this.y} width={this.data.width} height={this.data.height} rx="4" ry="4" style={this.rectStyle}/>
                 <circle cx={this.circleCx} cy={this.circleCy} r="10" fill="red" onMousedown={this.onResizeHandleMousedown}/>
-            </svg>
+            </g>
         )
     }
 })

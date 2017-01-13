@@ -76,7 +76,7 @@ Vue.component('linked-link', {
     },
     render(h) {
         return (
-            <line x1={this.x1} y1={this.y1} x2={this.x2} y2={this.y2} onMousedown={this.onSvgMousedown} onClick={this.onClick} style="stroke:#d00;stroke-width:2"/>
+            <line x1={this.x1} y1={this.y1} x2={this.x2} y2={this.y2} marker-end="url(#triangle)" onMousedown={this.onSvgMousedown} onClick={this.onClick} style="stroke:#d00;stroke-width:2"/>
         )
     }
 })

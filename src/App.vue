@@ -1,20 +1,12 @@
 <template>
     <div id="app" class="app">
-        <desktop class="app-desktop"></desktop>
-        <tools class="app-tools"></tools>
+        <desktop class="app-desktop" :data="data"></desktop>
+        <tools class="app-tools" @addImg="onAddImg($event)"></tools>
     </div>
 </template>
 
 <script>
-    import Desktop from './components/desktop/vue.vue'
-    import Tools from './components/tools/vue.vue'
-    export default {
-        name: 'app',
-        components: {
-            Desktop,
-            Tools
-        }
-    }
+    export {default} from './App.js'
 </script>
 
 <style lang="scss">
@@ -38,14 +30,17 @@
     }
     .app-desktop {
         flex: 1;
-        margin: 10px 5px 10px 10px;
-        box-shadow: 1px 1px 5px #ccc;
-        border-radius: 4px;
+        border: 1px solid #eee;
+        /*margin: 10px 5px 10px 10px;*/
+        /*box-shadow: 1px 1px 5px #ccc;*/
+        /*border-radius: 4px;*/
     }
     .app-tools {
+        box-sizing: border-box;
+        padding: 10px;
         width: 200px;
-        margin: 10px 10px 10px 5px;
-        box-shadow: 1px 1px 5px #ccc;
-        border-radius: 4px;
+        /*margin: 10px 10px 10px 5px;*/
+        /*box-shadow: 1px 1px 5px #ccc;*/
+        /*border-radius: 4px;*/
     }
 </style>

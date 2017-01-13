@@ -1,13 +1,17 @@
 import Consts from '../../consts'
-import FileFormat from '../../file-format'
+import Store from '../../store'
 
 export default {
     components: {
     },
+    props: {
+        data: {
+            type: Object,
+            required: true
+        }
+    },
     data() {
         return {
-            imgs: [],
-            links: [],
             paperScale: 1,
             paperTx: 0,
             paperTy: 0,
@@ -33,13 +37,18 @@ export default {
             return Consts.paperFullHeight
         }
     },
+    watch: {
+        paperScale(to, from) {
+            Store.setPaperScale(to)
+        }
+    },
     created() {
-        this.imgs = FileFormat.imgs
-        this.links = FileFormat.links
+        const self = this
         this.$nextTick(() => {
+            Store.setSvg(this.$refs.svg)
+            Store.setSvgPoint(this.$refs.svg.createSVGPoint())
             this.$el.addEventListener('mousewheel', this.onMousewheel)
         })
-        const self = this
         setTimeout(() => {
             self.viewportWidth = this.$el.offsetWidth
             self.viewportHeight = this.$el.offsetHeight
@@ -54,7 +63,7 @@ export default {
             img.height += dt.dy / this.paperScale
             const f = img.width / orgW
 
-            this.links.forEach(link => {
+            this.data.links.forEach(link => {
                 if (link.from.id === img.id) {
                     link.from.x *= f
                     link.from.y *= f
@@ -78,7 +87,7 @@ export default {
             }
         },
         onMousedownForDragging(evt) {
-            if (evt.target === this.$el || evt.target === this.$refs.paper || evt.target === this.$refs.svg) {
+            if (evt.target === evt.currentTarget) {
                 this.dragStartScreenX = evt.screenX
                 this.dragStartScreenY = evt.screenY
                 this.isMousedownForDragging = true
@@ -102,6 +111,15 @@ export default {
                 document.body.removeEventListener('mousemove', this.mousemove)
                 document.body.removeEventListener('mouseup', this.mouseup)
             }
+        },
+        onSvgMousemove(evt) {
+            Store.svgPoint.x = evt.clientX
+            Store.svgPoint.y = evt.clientY
+            const p = Store.svgPoint.matrixTransform(Store.svg.getScreenCTM().inverse())
+            const x = p.x / Store.paperScale
+            const y = p.y / Store.paperScale
+            console.log(x + ', ' + y)
+            // TODO: here
         }
     }
 }

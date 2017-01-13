@@ -1,5 +1,6 @@
 <template>
     <div class="tools">
+        <input type="file" @change="onFileChange($event)"/>
     </div>
 </template>
 <script>

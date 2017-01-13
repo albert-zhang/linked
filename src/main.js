@@ -2,7 +2,9 @@
 // require('bootstrap')
 
 import Vue from 'vue'
-import App from './App'
+import App from './App.vue'
+
+import './store'
 
 import './components/linked-img/js'
 import './components/linked-link/js'
