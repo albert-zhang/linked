@@ -23,7 +23,10 @@ export default {
                 id: '',
                 x: 0,
                 y: 0
-            }
+            },
+            isCreating: false,
+            creatingToX: 0,
+            creatingToY: 0
         }
     ]
 }

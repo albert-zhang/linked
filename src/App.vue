@@ -1,7 +1,6 @@
 <template>
     <div id="app" class="app">
         <desktop class="app-desktop" :data="data"></desktop>
-        <tools class="app-tools" @addImg="onAddImg($event)"></tools>
     </div>
 </template>
 

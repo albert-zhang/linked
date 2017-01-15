@@ -1,5 +1,6 @@
 import Consts from '../../consts'
 import Store from '../../store'
+import md5 from 'js-md5'
 
 export default {
     components: {
@@ -19,7 +20,10 @@ export default {
             dragStartScreenY: 0,
             isMousedownForDragging: false,
             viewportWidth: 0,
-            viewportHeight: 0
+            viewportHeight: 0,
+            isMousedownForCreatingLinks: false,
+            creatingLinksTargetImg: null,
+            creatingLinksTargetImgMousePos: null
         }
     },
     computed: {
@@ -57,7 +61,7 @@ export default {
         }, 0)
     },
     methods: {
-        onResize(dt, img) {
+        onImgResize(dt, img) {
             const orgW = img.width
             img.width += dt.dx / this.paperScale
             img.height += dt.dy / this.paperScale
@@ -74,9 +78,41 @@ export default {
                 }
             })
         },
-        onMove(dt, img) {
+        onImgMove(dt, img) {
             img.x += dt.dx / this.paperScale
             img.y += dt.dy / this.paperScale
+        },
+        onImgCtrlMousedown(pos, img) {
+            this.isMousedownForCreatingLinks = true
+            const link = {
+                id: md5(new Date().toISOString()),
+                isCreating: true,
+                name: '',
+                from: {
+                    id: img.id,
+                    x: pos.x,
+                    y: pos.y
+                },
+                creatingToX: this.mouseX,
+                creatingToY: this.mouseY
+            }
+            this.data.links.push(link)
+        },
+        onImgMouseover(img) {
+            if (this.isMousedownForCreatingLinks) {
+                this.creatingLinksTargetImg = img
+            }
+        },
+        onImgMouseout(img) {
+            if (this.isMousedownForCreatingLinks) {
+                this.creatingLinksTargetImg = null
+                this.creatingLinksTargetImgMousePos = null
+            }
+        },
+        onImgMousemove(pos, img) {
+            if (this.creatingLinksTargetImg) {
+                this.creatingLinksTargetImgMousePos = pos
+            }
         },
         onMousewheel(evt) {
             this.paperScale -= evt.wheelDelta * 0.00005
@@ -86,7 +122,7 @@ export default {
                 this.paperScale = 0.1
             }
         },
-        onMousedownForDragging(evt) {
+        onSvgMousedown(evt) {
             if (evt.target === evt.currentTarget) {
                 this.dragStartScreenX = evt.screenX
                 this.dragStartScreenY = evt.screenY
@@ -113,13 +149,57 @@ export default {
             }
         },
         onSvgMousemove(evt) {
-            Store.svgPoint.x = evt.clientX
-            Store.svgPoint.y = evt.clientY
-            const p = Store.svgPoint.matrixTransform(Store.svg.getScreenCTM().inverse())
-            const x = p.x / Store.paperScale
-            const y = p.y / Store.paperScale
-            console.log(x + ', ' + y)
-            // TODO: here
+            if (this.isMousedownForCreatingLinks) {
+                Store.svgPoint.x = evt.clientX
+                Store.svgPoint.y = evt.clientY
+                const p = Store.svgPoint.matrixTransform(Store.svg.getScreenCTM().inverse())
+                this.mouseX = p.x / Store.paperScale
+                this.mouseY = p.y / Store.paperScale
+                this.data.links.forEach(link => {
+                    if (link.isCreating) {
+                        link.creatingToX = this.mouseX
+                        link.creatingToY = this.mouseY
+                    }
+                })
+            }
+        },
+        onSvgMouseup(evt) {
+            if (this.isMousedownForCreatingLinks) {
+                this.isMousedownForCreatingLinks = false
+                this.data.links.forEach(link => {
+                    if (link.isCreating) {
+                        if (this.creatingLinksTargetImg) {
+                            link.isCreating = false
+                            setTimeout(() => {
+                                delete link.isCreating
+                            }, 0)
+                            delete link.creatingToX
+                            delete link.creatingToY
+                            link.to = {
+                                id: this.creatingLinksTargetImg.id,
+                                x: this.creatingLinksTargetImgMousePos.x,
+                                y: this.creatingLinksTargetImgMousePos.y
+                            }
+                        } else {
+                            link.__tmp_toBeDeleted = true
+                        }
+                    }
+                })
+                while (true) {
+                    let hasToBeDeleted = false
+                    for (const i in this.data.links) {
+                        const link = this.data.links[i]
+                        if (link.__tmp_toBeDeleted) {
+                            hasToBeDeleted = true
+                            this.data.links.splice(i, 1)
+                            break
+                        }
+                    }
+                    if (!hasToBeDeleted) {
+                        break
+                    }
+                }
+            }
         }
     }
 }

@@ -5,7 +5,7 @@ export default {
     methods: {
         onFileChange(evt) {
             const f = evt.target.files[0]
-            this.$emit('addImg', f)
+            this.$emit('addImg', {file: f})
         }
     }
 }

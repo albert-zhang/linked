@@ -53,6 +53,14 @@ Vue.component('linked-img', {
         const self = this
     },
     methods: {
+        calcLocalPosition(evt) {
+            Store.svgPoint.x = evt.clientX
+            Store.svgPoint.y = evt.clientY
+            const p = Store.svgPoint.matrixTransform(Store.svg.getScreenCTM().inverse())
+            const x = p.x / Store.paperScale - this.x
+            const y = p.y / Store.paperScale - this.y
+            return {x, y}
+        },
         onClick() {
             this.isEditing = !this.isEditing
         },
@@ -65,13 +73,7 @@ Vue.component('linked-img', {
         },
         onImageMousedown(evt) {
             if (evt.ctrlKey) {
-                Store.svgPoint.x = evt.clientX
-                Store.svgPoint.y = evt.clientY
-                const p = Store.svgPoint.matrixTransform(Store.svg.getScreenCTM().inverse())
-                const x = p.x / Store.paperScale - this.x
-                const y = p.y / Store.paperScale - this.y
-                console.log(x + ', ' + y)
-                // TODO: here
+                this.$emit('ctrlMousedown', this.calcLocalPosition(evt))
                 return
             }
             this.isMousedownForMoving = true
@@ -79,6 +81,9 @@ Vue.component('linked-img', {
             this.startScreenY = evt.screenY
             document.body.addEventListener('mousemove', this.mousemove)
             document.body.addEventListener('mouseup', this.mouseup)
+        },
+        onImageMousemove(evt) {
+            this.$emit('mousemove2', this.calcLocalPosition(evt))
         },
         mousemove(evt) {
             if (this.isMousedownForResizing) {
@@ -122,13 +127,19 @@ Vue.component('linked-img', {
                 document.body.removeEventListener('mousemove', this.mousemove)
                 document.body.removeEventListener('mouseup', this.mouseup)
             }
+        },
+        onImageMouseover(evt) {
+            this.$emit('mouseover')
+        },
+        onImageMouseout(evt) {
+            this.$emit('mouseoout')
         }
     },
     render(h) {
         return (
             <g>
                 <image xlinkHref={this.imgSrc} x={this.x} y={this.y} width={this.data.width} height={this.data.height} preserveAspectRatio="none"
-                    onMousedown={this.onImageMousedown}/>
+                    onMousedown={this.onImageMousedown} onMousemove={this.onImageMousemove} onMouseover={this.onImageMouseover} onMouseout={this.onImageMouseout}/>
                 <rect x={this.x} y={this.y} width={this.data.width} height={this.data.height} rx="4" ry="4" style={this.rectStyle}/>
                 <circle cx={this.circleCx} cy={this.circleCy} r="10" fill="red" onMousedown={this.onResizeHandleMousedown}/>
             </g>

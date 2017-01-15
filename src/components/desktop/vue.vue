@@ -7,7 +7,8 @@
                     <line x1="50" y1="0" x2="50" y2="100" style="stroke:#aaa;stroke-width:1"/>
                 </svg>
             </div>
-            <svg ref="svg" :width="paperWidth" :height="paperHeight" @mousedown="onMousedownForDragging" @mousemove="onSvgMousemove($event)">
+            <svg ref="svg" :width="paperWidth" :height="paperHeight"
+                 @mousedown="onSvgMousedown" @mousemove="onSvgMousemove($event)" @mouseup="onSvgMouseup($event)">
                 <marker id="triangle"
                         viewBox="0 0 10 10" refX="0" refY="5"
                         markerUnits="strokeWidth"
@@ -17,9 +18,12 @@
                 </marker>
                 <linked-img v-for="img in data.imgs" :key="img.id" :data="img"
                             :viewport-width="viewportWidth" :viewport-height="viewportHeight"
-                            @resize="onResize($event, img)" @move="onMove($event, img)"/>
+                            @resize="onImgResize($event, img)" @move="onImgMove($event, img)"
+                            @ctrlMousedown="onImgCtrlMousedown($event, img)" @mousemove2="onImgMousemove($event, img)"
+                            @mouseover="onImgMouseover(img)" @mouseoout="onImgMouseout(img)"/>
                 <linked-link v-for="link in data.links" :key="link.id" :data="link" :imgs="data.imgs"
-                            :viewport-width="viewportWidth" :viewport-height="viewportHeight"/>
+                             :disable-mouse="isMousedownForCreatingLinks"
+                             :viewport-width="viewportWidth" :viewport-height="viewportHeight"/>
             </svg>
         </div>
     </div>
