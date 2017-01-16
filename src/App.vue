@@ -1,6 +1,7 @@
 <template>
     <div id="app" class="app">
         <desktop class="app-desktop" :data="data"></desktop>
+        <tools class="app-tools"></tools>
     </div>
 </template>
 
@@ -25,21 +26,15 @@
     }
     .app {
         display: flex;
-        flex-flow: row nowrap;
+        flex-flow: column nowrap;
     }
     .app-desktop {
         flex: 1;
         border: 1px solid #eee;
-        /*margin: 10px 5px 10px 10px;*/
-        /*box-shadow: 1px 1px 5px #ccc;*/
-        /*border-radius: 4px;*/
     }
     .app-tools {
         box-sizing: border-box;
         padding: 10px;
-        width: 200px;
-        /*margin: 10px 10px 10px 5px;*/
-        /*box-shadow: 1px 1px 5px #ccc;*/
-        /*border-radius: 4px;*/
+        height: 100px;
     }
 </style>

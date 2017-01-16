@@ -19,7 +19,6 @@ Vue.component('linked-img', {
     },
     data() {
         return {
-            isEditing: false,
             startScreenX: 0,
             startScreenY: 0,
             isMousedownForResizing: false,
@@ -28,10 +27,10 @@ Vue.component('linked-img', {
     },
     computed: {
         borderColor() {
-            return this.isEditing ? '#f00' : '#666'
+            return this.data.selected ? Consts.imgBorderColorSelected : Consts.imgBorderColorNormal
         },
         rectStyle() {
-            return `fill: none; stroke-width: 4; stroke: ${this.borderColor}`
+            return `fill: none; stroke-width: 1; stroke: ${this.borderColor}`
         },
         circleCx() {
             return this.x + this.data.width - 10
@@ -62,7 +61,7 @@ Vue.component('linked-img', {
             return {x, y}
         },
         onClick() {
-            this.isEditing = !this.isEditing
+            this.$emit('select')
         },
         onResizeHandleMousedown(evt) {
             this.isMousedownForResizing = true
@@ -139,7 +138,8 @@ Vue.component('linked-img', {
         return (
             <g>
                 <image xlinkHref={this.imgSrc} x={this.x} y={this.y} width={this.data.width} height={this.data.height} preserveAspectRatio="none"
-                    onMousedown={this.onImageMousedown} onMousemove={this.onImageMousemove} onMouseover={this.onImageMouseover} onMouseout={this.onImageMouseout}/>
+                    onMousedown={this.onImageMousedown} onMousemove={this.onImageMousemove} onMouseover={this.onImageMouseover} onMouseout={this.onImageMouseout}
+                    onClick={this.onClick}/>
                 <rect x={this.x} y={this.y} width={this.data.width} height={this.data.height} rx="4" ry="4" style={this.rectStyle}/>
                 <circle cx={this.circleCx} cy={this.circleCy} r="10" fill="red" onMousedown={this.onResizeHandleMousedown}/>
             </g>

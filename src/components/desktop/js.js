@@ -1,6 +1,7 @@
 import Consts from '../../consts'
 import Store from '../../store'
 import md5 from 'js-md5'
+import Vue from 'vue'
 
 export default {
     components: {
@@ -23,7 +24,10 @@ export default {
             viewportHeight: 0,
             isMousedownForCreatingLinks: false,
             creatingLinksTargetImg: null,
-            creatingLinksTargetImgMousePos: null
+            creatingLinksTargetImgMousePos: null,
+            linkMarkerEndColorNormal: Consts.linkColorNormal,
+            linkMarkerEndColorSelected: Consts.linkColorSelected,
+            selectedObject: null // either a img or a link
         }
     },
     computed: {
@@ -116,10 +120,19 @@ export default {
         },
         onMousewheel(evt) {
             this.paperScale -= evt.wheelDelta * 0.00005
-            if (this.paperScale > 2) {
-                this.paperScale = 2
+            if (this.paperScale > 3) {
+                this.paperScale = 3
             } else if (this.paperScale < 0.1) {
                 this.paperScale = 0.1
+            }
+        },
+        onSvgClick(evt) {
+            if (evt.target === evt.currentTarget) {
+                if (this.selectedObject) {
+                    Vue.set(this.selectedObject, 'selected', false)
+                    delete this.selectedObject.selected
+                    this.selectedObject = null
+                }
             }
         },
         onSvgMousedown(evt) {
@@ -168,7 +181,7 @@ export default {
                 this.isMousedownForCreatingLinks = false
                 this.data.links.forEach(link => {
                     if (link.isCreating) {
-                        if (this.creatingLinksTargetImg) {
+                        if (this.creatingLinksTargetImg && this.creatingLinksTargetImg.id !== link.from.id) {
                             link.isCreating = false
                             setTimeout(() => {
                                 delete link.isCreating
@@ -199,6 +212,30 @@ export default {
                         break
                     }
                 }
+            }
+        },
+        onImgSelect(img) {
+            if (this.selectedObject) {
+                Vue.set(this.selectedObject, 'selected', false)
+                delete this.selectedObject.selected
+            }
+            if (this.selectedObject !== img) {
+                this.selectedObject = img
+                Vue.set(this.selectedObject, 'selected', true)
+            } else {
+                this.selectedObject = null
+            }
+        },
+        onLinkSelect(link) {
+            if (this.selectedObject) {
+                Vue.set(this.selectedObject, 'selected', false)
+                delete this.selectedObject.selected
+            }
+            if (this.selectedObject !== link) {
+                this.selectedObject = link
+                Vue.set(this.selectedObject, 'selected', true)
+            } else {
+                this.selectedObject = null
             }
         }
     }

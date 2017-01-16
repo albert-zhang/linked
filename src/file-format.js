@@ -7,7 +7,8 @@ export default {
             x: 0,
             y: 0,
             width: 0,
-            height: 0
+            height: 0,
+            selected: false
         }
     ],
     links: [
@@ -26,7 +27,8 @@ export default {
             },
             isCreating: false,
             creatingToX: 0,
-            creatingToY: 0
+            creatingToY: 0,
+            selected: false
         }
     ]
 }

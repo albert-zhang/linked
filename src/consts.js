@@ -1,4 +1,8 @@
 export default {
-    paperFullWidth: 10000,
-    paperFullHeight: 10000
+    paperFullWidth: 1000000,
+    paperFullHeight: 1000000,
+    imgBorderColorNormal: '#bbb',
+    imgBorderColorSelected: '#222',
+    linkColorNormal: '#295',
+    linkColorSelected: '#f00'
 }

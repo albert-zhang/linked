@@ -72,26 +72,31 @@ Vue.component('linked-link', {
             }
         },
         style() {
-            let str = 'stroke:#d00; stroke-width:2;'
+            let str = 'stroke:' + (this.data.selected ? Consts.linkColorSelected : Consts.linkColorNormal) + ';' +
+                'stroke-width:2;'
             if (this.disableMouse) {
                 str += 'pointer-events: none;'
             }
             return str
+        },
+        markerEnd() {
+            if (this.data.selected) {
+                return 'url(#triangle-selected)'
+            } else {
+                return 'url(#triangle-normal)'
+            }
         }
     },
     methods: {
-        onSvgMousedown() {
-
-        },
         onClick() {
-
+            this.$emit('select')
         }
     },
     render(h) {
         return (
-            <line x1={this.x1} y1={this.y1} x2={this.x2} y2={this.y2}
-                marker-end="url(#triangle)" style={this.style}
-                onMousedown={this.onSvgMousedown} onClick={this.onClick}/>
+            <line stroke-linecap="round" x1={this.x1} y1={this.y1} x2={this.x2} y2={this.y2}
+                marker-end={this.markerEnd} style={this.style}
+                onClick={this.onClick}/>
         )
     }
 })
