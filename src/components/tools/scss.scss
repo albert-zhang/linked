@@ -1,3 +1,10 @@
 .tools {
     overflow: hidden;
+    display: flex;
+    flex-flow: row nowrap;
+
+    .tools-slider {
+        min-width: 200px;
+        max-width: 200px;
+    }
 }

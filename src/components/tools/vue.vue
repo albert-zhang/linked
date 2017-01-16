@@ -1,6 +1,7 @@
 <template>
     <div class="tools">
-        <input type="file" @change="onFileChange($event)"/>
+        <we-file @change="onFileChange($event)"></we-file>
+        <!--<we-slider class="tools-slider" v-model="sliderValue"></we-slider>-->
     </div>
 </template>
 <script>

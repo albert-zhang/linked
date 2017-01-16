@@ -13,6 +13,12 @@
 </style>
 <script>
     export default {
+        props: {
+            value: {
+                type: Number,
+                required: true
+            }
+        },
         data() {
             return {
                 isMouseDown: false,
@@ -33,11 +39,17 @@
                 return {left: this.percentStyle + '%'}
             }
         },
+        watch: {
+            value: function(to, from) {
+                this.updatePercentStyle(to)
+            }
+        },
         created() {
             const self = this
             setTimeout(function() {
                 self.trackWidth = self.$refs.sliderInner.offsetWidth
             }, 0)
+            this.updatePercentStyle(this.value)
         },
         methods: {
             mousedown(evt) {
@@ -53,12 +65,8 @@
                     const dx = evt.screenX - this.startScreenX
                     const dy = evt.screenY - this.startScreenY
                     const percent = dx / this.trackWidth
-                    this.percentStyle = this.startPercentStyle + Math.round(percent * 100)
-                    if (this.percentStyle > 100) {
-                        this.percentStyle = 100
-                    } else if (this.percentStyle < 0) {
-                        this.percentStyle = 0
-                    }
+                    this.updatePercentStyle(percent)
+                    this.$emit('input', this.percentStyle / 100)
                 }
             },
             mouseup(evt) {
@@ -66,6 +74,14 @@
                     this.isMouseDown = false
                     document.body.removeEventListener('mousemove', this.mousemove)
                     document.body.removeEventListener('mouseup', this.mouseup)
+                }
+            },
+            updatePercentStyle(val) {
+                this.percentStyle = this.startPercentStyle + Math.round(val * 100)
+                if (this.percentStyle > 100) {
+                    this.percentStyle = 100
+                } else if (this.percentStyle < 0) {
+                    this.percentStyle = 0
                 }
             }
         }

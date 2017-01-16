@@ -2,6 +2,8 @@ import Consts from '../../consts'
 import Store from '../../store'
 import md5 from 'js-md5'
 import Vue from 'vue'
+import path from 'path'
+import shelljs from 'shelljs'
 
 export default {
     components: {
@@ -51,6 +53,7 @@ export default {
         }
     },
     created() {
+        document.body.addEventListener('keydown', this.onBodyKydown)
         const self = this
         this.$nextTick(() => {
             Store.setSvg(this.$refs.svg)
@@ -65,6 +68,63 @@ export default {
         }, 0)
     },
     methods: {
+        onBodyKydown(evt) {
+            if (evt.keyCode === 8) {
+                this.deleteSelectedObject()
+            } else if (evt.keyCode === 83) {
+                if (process.platform === 'darwin') {
+                    if (evt.metaKey) {
+                        this.$emit('save')
+                    }
+                } else {
+                    if (evt.ctrlKey) {
+                        this.$emit('save')
+                    }
+                }
+            }
+        },
+
+        deleteSelectedObject() {
+            if (this.selectedObject) {
+                if (!window.confirm('Are you sure to delete？')) {
+                    return
+                }
+                if (this.selectedObject.from) {
+                    this.deleteLink(this.selectedObject)
+                } else {
+                    this.deleteImg(this.selectedObject)
+                }
+                this.selectedObject = null
+            }
+        },
+
+        deleteImg(img) {
+            const index = this.data.imgs.indexOf(img)
+            this.data.imgs.splice(index, 1)
+            while (true) {
+                let foundLinkIndex = -1
+                for (const i in this.data.links) {
+                    const link = this.data.links[i]
+                    if (link.to.id === img.id || link.from.id === img.id) {
+                        foundLinkIndex = i
+                        break
+                    }
+                }
+                if (foundLinkIndex >= 0) {
+                    this.data.links.splice(foundLinkIndex, 1)
+                } else {
+                    break
+                }
+            }
+            const fp = `${Store.fileRoot}${path.sep}${img.file}`
+            shelljs.rm(fp) // TODO: not really delete for Undo support
+        },
+
+        deleteLink(link) {
+            const index = this.data.links.indexOf(link)
+            this.data.links.splice(index, 1)
+        },
+
         onImgResize(dt, img) {
             const orgW = img.width
             img.width += dt.dx / this.paperScale
@@ -89,7 +149,7 @@ export default {
         onImgCtrlMousedown(pos, img) {
             this.isMousedownForCreatingLinks = true
             const link = {
-                id: md5(new Date().toISOString()),
+                id: md5(new Date().toISOString() + Math.random()),
                 isCreating: true,
                 name: '',
                 from: {
@@ -120,10 +180,10 @@ export default {
         },
         onMousewheel(evt) {
             this.paperScale -= evt.wheelDelta * 0.00005
-            if (this.paperScale > 3) {
-                this.paperScale = 3
-            } else if (this.paperScale < 0.1) {
-                this.paperScale = 0.1
+            if (this.paperScale > Consts.maxPaperScale) {
+                this.paperScale = Consts.maxPaperScale
+            } else if (this.paperScale < Consts.minPaperScale) {
+                this.paperScale = Consts.minPaperScale
             }
         },
         onSvgClick(evt) {
@@ -215,24 +275,18 @@ export default {
             }
         },
         onImgSelect(img) {
-            if (this.selectedObject) {
-                Vue.set(this.selectedObject, 'selected', false)
-                delete this.selectedObject.selected
-            }
-            if (this.selectedObject !== img) {
-                this.selectedObject = img
-                Vue.set(this.selectedObject, 'selected', true)
-            } else {
-                this.selectedObject = null
-            }
+            this.handleSelectNewObject(img)
         },
         onLinkSelect(link) {
+            this.handleSelectNewObject(link)
+        },
+        handleSelectNewObject(obj) {
             if (this.selectedObject) {
                 Vue.set(this.selectedObject, 'selected', false)
                 delete this.selectedObject.selected
             }
-            if (this.selectedObject !== link) {
-                this.selectedObject = link
+            if (this.selectedObject !== obj) {
+                this.selectedObject = obj
                 Vue.set(this.selectedObject, 'selected', true)
             } else {
                 this.selectedObject = null

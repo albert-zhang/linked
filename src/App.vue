@@ -1,7 +1,10 @@
 <template>
     <div id="app" class="app">
-        <desktop class="app-desktop" :data="data"></desktop>
-        <tools class="app-tools"></tools>
+        <desktop class="app-desktop" :data="data" @save="onSave"></desktop>
+        <tools class="app-tools" @addImgs="onAddImgs"></tools>
+        <transition name="fade">
+            <drop v-show="showDropIndicator"></drop>
+        </transition>
     </div>
 </template>
 
@@ -35,6 +38,5 @@
     .app-tools {
         box-sizing: border-box;
         padding: 10px;
-        height: 100px;
     }
 </style>

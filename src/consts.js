@@ -4,5 +4,7 @@ export default {
     imgBorderColorNormal: '#bbb',
     imgBorderColorSelected: '#222',
     linkColorNormal: '#295',
-    linkColorSelected: '#f00'
+    linkColorSelected: '#f00',
+    maxPaperScale: 3,
+    minPaperScale: 0.01
 }

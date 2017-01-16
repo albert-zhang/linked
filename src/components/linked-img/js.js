@@ -1,6 +1,8 @@
 import Vue from 'vue'
 import Consts from '../../consts'
 import Store from '../../store'
+import fileUrl from 'file-url'
+import path from 'path'
 
 Vue.component('linked-img', {
     props: {
@@ -45,7 +47,7 @@ Vue.component('linked-img', {
             return this.data.y + (Consts.paperFullHeight - this.viewportHeight) * 0.5
         },
         imgSrc() {
-            return `file://${Store.fileRoot}/${this.data.file}`
+            return fileUrl(`${Store.fileRoot}${path.sep}${this.data.file}`)
         }
     },
     created() {

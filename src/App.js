@@ -2,9 +2,10 @@ import FileFormat from './file-format'
 import Store from './store'
 import Desktop from './components/desktop/vue.vue'
 import Tools from './components/tools/vue.vue'
+import Drop from './components/drop/vue.vue'
+import md5 from 'js-md5'
 
 import shelljs from 'shelljs'
-import os from 'os'
 import path from 'path'
 import fs from 'fs'
 
@@ -14,11 +15,14 @@ export default {
     name: 'app',
     components: {
         Desktop,
-        Tools
+        Tools,
+        Drop
     },
     data() {
         return {
-            data: FileFormat
+            data: FileFormat,
+            showDropIndicator: false,
+            paperScale: 1
         }
     },
     computed: {
@@ -26,10 +30,37 @@ export default {
     created() {
         this.data = {}
         this.createAppMenu()
+        this.addDropHandler()
 
         this.loadFile('/Users/yangzhang/Desktop/file-linked') // ///////////////////////////////////////////////////////
     },
     methods: {
+        addDropHandler() {
+            document.body.addEventListener('dragover', this.onDragover)
+            document.body.addEventListener('drop', this.onDragdrop)
+            document.body.addEventListener('dragleave', this.onDragleave)
+        },
+        onDragover(evt) {
+            evt.preventDefault()
+            if (!this.showDropIndicator) {
+                evt.dataTransfer.dropEffect = 'copy'
+                this.showDropIndicator = true
+            }
+        },
+        onDragdrop(evt) {
+            evt.preventDefault()
+            this.showDropIndicator = false
+            try {
+                this.addImgs(evt.dataTransfer.files)
+            } catch (ex) {
+                window.alert('Error: ' + ex.message)
+            }
+        },
+        onDragleave(evt) {
+            evt.preventDefault()
+            this.showDropIndicator = false
+        },
+
         createAppMenu() {
             const self = this
             const template = [
@@ -40,6 +71,12 @@ export default {
                             label: 'Open...',
                             click() {
                                 self.onOpenFileMenuAction()
+                            }
+                        },
+                        {
+                            label: 'Save',
+                            click() {
+                                self.saveFile()
                             }
                         }
                     ]
@@ -137,16 +174,78 @@ export default {
             }
         },
 
-        onAddImg(f) {
-            shelljs.cp(f.path, `${Store.fileRoot}/123.jpg`)
-            this.data.imgs.push({
-                id: '123',
-                file: '123.jpg',
-                x: 0,
-                y: 0,
-                width: 100,
-                height: 100
+        saveFile() {
+            try {
+                const jsonStr = JSON.stringify(this.data, null, '  ')
+                const cfg = path.resolve(Store.fileRoot, 'data.linked')
+                fs.writeFileSync(cfg, jsonStr)
+                console.log('File saved')
+            } catch (ex) {
+                window.alert('Save failed: ' + ex.message)
+            }
+        },
+
+        addImgs(fileList) {
+            const getFileExt = fn => {
+                const dotIndex = fn.lastIndexOf('.')
+                if (dotIndex === -1) {
+                    return 'bin'
+                }
+                return fn.substring(dotIndex + 1)
+            }
+
+            const promises = []
+            for (let i = 0; i < fileList.length; i++) {
+                const file = fileList[i]
+                const promise = new Promise((resolve, reject) => {
+                    const img = new window.Image()
+                    img.onload = () => {
+                        resolve({width: img.width, height: img.height})
+                    }
+                    img.onerror = () => {
+                        reject('Not a valid image file: ' + file.type)
+                    }
+                    img.src = window.URL.createObjectURL(file)
+                })
+                promises.push(promise)
+
+                promise.then((size) => {
+                    let f = 0
+                    if (size.width > size.height) {
+                        f = 300 / size.width
+                    } else {
+                        f = 300 / size.height
+                    }
+
+                    const ext = getFileExt(file.name)
+                    const imgName = md5(new Date().toISOString() + Math.random()) + '.' + ext
+                    const imgId = md5(new Date().toISOString() + Math.random())
+
+                    shelljs.cp(file.path, `${Store.fileRoot}${path.sep}${imgName}`)
+                    this.data.imgs.push({
+                        id: imgId,
+                        file: imgName,
+                        x: 0,
+                        y: 0,
+                        width: Math.round(size.width * f),
+                        height: Math.round(size.height * f)
+                    })
+                    return Promise.resolve('')
+                }).catch(err => {
+                    return Promise.reject(err)
+                })
+            }
+            Promise.all(promises).catch((err) => {
+                window.alert('Error: ' + err)
             })
+        },
+
+        onAddImgs(fileList) {
+            this.addImgs(fileList)
+        },
+
+        onSave() {
+            this.saveFile()
         }
     }
 }
