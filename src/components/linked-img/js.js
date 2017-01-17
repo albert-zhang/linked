@@ -47,7 +47,10 @@ Vue.component('linked-img', {
             return this.data.y + (Consts.paperFullHeight - this.viewportHeight) * 0.5
         },
         imgSrc() {
-            return fileUrl(`${Store.fileRoot}${path.sep}${this.data.file}`)
+            return fileUrl(path.resolve(Store.fileRoot, this.data.file))
+        },
+        resizeHandleVisible() {
+            return this.data.selected
         }
     },
     created() {
@@ -143,7 +146,8 @@ Vue.component('linked-img', {
                     onMousedown={this.onImageMousedown} onMousemove={this.onImageMousemove} onMouseover={this.onImageMouseover} onMouseout={this.onImageMouseout}
                     onClick={this.onClick}/>
                 <rect x={this.x} y={this.y} width={this.data.width} height={this.data.height} rx="4" ry="4" style={this.rectStyle}/>
-                <circle cx={this.circleCx} cy={this.circleCy} r="10" fill="red" onMousedown={this.onResizeHandleMousedown}/>
+                <circle v-show={this.resizeHandleVisible} cx={this.circleCx} cy={this.circleCy} r="10" fill="red"
+                    onMousedown={this.onResizeHandleMousedown}/>
             </g>
         )
     }

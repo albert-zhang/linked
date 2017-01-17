@@ -6,5 +6,5 @@ export default {
     linkColorNormal: '#295',
     linkColorSelected: '#f00',
     maxPaperScale: 3,
-    minPaperScale: 0.01
+    minPaperScale: 0.1
 }

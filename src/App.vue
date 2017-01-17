@@ -1,9 +1,16 @@
 <template>
     <div id="app" class="app">
-        <desktop class="app-desktop" :data="data" @save="onSave"></desktop>
-        <tools class="app-tools" @addImgs="onAddImgs"></tools>
+        <desktop class="app-desktop" :data="data" @save="onSave" @addImgs="onDesktopAddImgs"></desktop>
+        <!--<tools class="app-tools"></tools>-->
         <transition name="fade">
             <drop v-show="showDropIndicator"></drop>
+        </transition>
+        <transition name="fade">
+            <placeholder v-show="showPlaceholder"
+                         @newFile="onPlaceholderNewFile" @openFile="onPlaceholderOpenFile"></placeholder>
+        </transition>
+        <transition name="fade">
+            <toast v-show="showToast" :label="toastLabel"></toast>
         </transition>
     </div>
 </template>

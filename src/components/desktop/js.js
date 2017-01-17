@@ -3,7 +3,8 @@ import Store from '../../store'
 import md5 from 'js-md5'
 import Vue from 'vue'
 import path from 'path'
-import shelljs from 'shelljs'
+import fs from 'fs'
+import util from '../../util'
 
 export default {
     components: {
@@ -116,8 +117,9 @@ export default {
                     break
                 }
             }
-            const fp = `${Store.fileRoot}${path.sep}${img.file}`
-            shelljs.rm(fp) // TODO: not really delete for Undo support
+            const fp = path.resolve(Store.fileRoot, img.file)
+            fs.unlinkSync(fp) // TODO: not really delete for Undo support
+            // util.moveFileToTrash(fp)
         },
 
         deleteLink(link) {
@@ -179,7 +181,7 @@ export default {
             }
         },
         onMousewheel(evt) {
-            this.paperScale -= evt.wheelDelta * 0.00005
+            this.paperScale -= evt.wheelDelta * 0.0001
             if (this.paperScale > Consts.maxPaperScale) {
                 this.paperScale = Consts.maxPaperScale
             } else if (this.paperScale < Consts.minPaperScale) {
@@ -193,6 +195,11 @@ export default {
                     delete this.selectedObject.selected
                     this.selectedObject = null
                 }
+            }
+        },
+        onSvgDbclick(evt) {
+            if (evt.target === evt.currentTarget) {
+                this.$emit('addImgs')
             }
         },
         onSvgMousedown(evt) {

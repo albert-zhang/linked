@@ -73,7 +73,7 @@ Vue.component('linked-link', {
         },
         style() {
             let str = 'stroke:' + (this.data.selected ? Consts.linkColorSelected : Consts.linkColorNormal) + ';' +
-                'stroke-width:2;'
+                'stroke-width:4;'
             if (this.disableMouse) {
                 str += 'pointer-events: none;'
             }
