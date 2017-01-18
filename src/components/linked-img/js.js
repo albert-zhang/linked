@@ -34,11 +34,14 @@ Vue.component('linked-img', {
         rectStyle() {
             return `fill: none; stroke-width: 1; stroke: ${this.borderColor}`
         },
-        circleCx() {
-            return this.x + this.data.width - 10
+        resizeHandleX() {
+            return this.x + this.data.width - 15
         },
-        circleCy() {
-            return this.y + this.data.height - 10
+        resizeHandleY() {
+            return this.y + this.data.height - 15
+        },
+        resizeHandleStyle() {
+            return 'fill:' + Consts.imgBorderColorSelected + ';fill-opacity:0.8'
         },
         x() {
             return this.data.x + (Consts.paperFullWidth - this.viewportWidth) * 0.5
@@ -146,8 +149,8 @@ Vue.component('linked-img', {
                     onMousedown={this.onImageMousedown} onMousemove={this.onImageMousemove} onMouseover={this.onImageMouseover} onMouseout={this.onImageMouseout}
                     onClick={this.onClick}/>
                 <rect x={this.x} y={this.y} width={this.data.width} height={this.data.height} rx="4" ry="4" style={this.rectStyle}/>
-                <circle v-show={this.resizeHandleVisible} cx={this.circleCx} cy={this.circleCy} r="10" fill="red"
-                    onMousedown={this.onResizeHandleMousedown}/>
+                <rect v-show={this.resizeHandleVisible} x={this.resizeHandleX} y={this.resizeHandleY} rx="2" ry="2" width="15" height="15"
+                    style={this.resizeHandleStyle} onMousedown={this.onResizeHandleMousedown}/>
             </g>
         )
     }

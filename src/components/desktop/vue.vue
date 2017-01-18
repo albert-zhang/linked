@@ -10,16 +10,16 @@
             <svg ref="svg" :width="paperWidth" :height="paperHeight" @click="onSvgClick($event)" @dblclick="onSvgDbclick($event)"
                  @mousedown="onSvgMousedown($event)" @mousemove="onSvgMousemove($event)" @mouseup="onSvgMouseup($event)">
                 <marker id="triangle-normal"
-                        viewBox="0 0 10 10" refX="0" refY="5"
+                        viewBox="0 0 10 10" refX="6" refY="5"
                         markerUnits="strokeWidth"
-                        markerWidth="8" markerHeight="6"
+                        markerWidth="6" markerHeight="4"
                         orient="auto">
                     <path d="M 0 0 L 10 5 L 0 10 z" :fill="linkMarkerEndColorNormal"/>
                 </marker>
                 <marker id="triangle-selected"
-                        viewBox="0 0 10 10" refX="0" refY="5"
+                        viewBox="0 0 10 10" refX="6" refY="5"
                         markerUnits="strokeWidth"
-                        markerWidth="8" markerHeight="6"
+                        markerWidth="6" markerHeight="4"
                         orient="auto">
                     <path d="M 0 0 L 10 5 L 0 10 z" :fill="linkMarkerEndColorSelected"/>
                 </marker>

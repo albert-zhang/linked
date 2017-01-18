@@ -47,7 +47,7 @@ export default {
         this.createAppMenu()
         this.addDropHandler()
 
-        // this.loadFile('/Users/yangzhang/Desktop/file-linked') // ///////////////////////////////////////////////////////
+        // this.loadFile('/Users/yangzhang/Desktop/sample.linked') // ///////////////////////////////////////////////////////
     },
     methods: {
         toast(str) {

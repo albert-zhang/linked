@@ -26,6 +26,10 @@ Vue.component('linked-link', {
     },
     data() {
         return {
+            isMousedownForDraggingStart: false,
+            isMousedownForDraggingEnd: false,
+            startScreenX: 0,
+            startScreenY: 0
         }
     },
     computed: {
@@ -85,18 +89,66 @@ Vue.component('linked-link', {
             } else {
                 return 'url(#triangle-normal)'
             }
+        },
+        dragHandleFill() {
+            return Consts.linkColorSelected
         }
     },
     methods: {
         onClick() {
             this.$emit('select')
+        },
+        onStartDraghandleMousedown(evt) {
+            this.isMousedownForDraggingStart = true
+            this.startScreenX = evt.screenX
+            this.startScreenY = evt.screenY
+            document.body.addEventListener('mousemove', this.mousemove)
+            document.body.addEventListener('mouseup', this.mouseup)
+        },
+        onEndDraghandleMousedown(evt) {
+            this.isMousedownForDraggingEnd = true
+            this.startScreenX = evt.screenX
+            this.startScreenY = evt.screenY
+            document.body.addEventListener('mousemove', this.mousemove)
+            document.body.addEventListener('mouseup', this.mouseup)
+        },
+        mousemove(evt) {
+            let dx, dy
+            if (this.isMousedownForDraggingStart || this.isMousedownForDraggingEnd) {
+                dx = evt.screenX - this.startScreenX
+                dy = evt.screenY - this.startScreenY
+                this.startScreenX = evt.screenX
+                this.startScreenY = evt.screenY
+            }
+            if (this.isMousedownForDraggingStart) {
+                this.data.from.x += dx
+                this.data.from.y += dy
+            } else if (this.isMousedownForDraggingEnd) {
+                this.data.to.x += dx
+                this.data.to.y += dy
+            }
+        },
+        mouseup(evt) {
+            if (this.isMousedownForDraggingStart || this.isMousedownForDraggingEnd) {
+                this.isMousedownForDraggingStart = false
+                this.isMousedownForDraggingEnd = false
+                document.body.removeEventListener('mousemove', this.mousemove)
+                document.body.removeEventListener('mouseup', this.mouseup)
+
+            }
         }
     },
     render(h) {
         return (
-            <line stroke-linecap="round" x1={this.x1} y1={this.y1} x2={this.x2} y2={this.y2}
-                marker-end={this.markerEnd} style={this.style}
-                onClick={this.onClick}/>
+            <g>
+                <line stroke-linecap="round" x1={this.x1} y1={this.y1} x2={this.x2} y2={this.y2}
+                    marker-end={this.markerEnd} style={this.style}
+                    onClick={this.onClick}/>
+                <circle v-show={this.data.selected} cx={this.x1} cy={this.y1} r="15" fill={this.dragHandleFill} style="opacity: 0.5"
+                    onMousedown={this.onStartDraghandleMousedown}/>
+                <circle v-show={this.data.selected} cx={this.x2} cy={this.y2} r="15" fill={this.dragHandleFill} style="opacity: 0.5"
+                    onMousedown={this.onEndDraghandleMousedown}/>
+            </g>
         )
     }
 })
