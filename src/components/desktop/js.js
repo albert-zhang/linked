@@ -38,14 +38,33 @@ export default {
             return {
                 width: `${Consts.paperFullWidth}px`,
                 height: `${Consts.paperFullHeight}px`,
+                transformOrigin: `${this.paperTCx}px ${this.paperTCy}px`,
                 transform: `translateX(${this.paperTx}px) translateY(${this.paperTy}px) scale(${this.paperScale})`
             }
+        },
+        initialPaperTx() {
+            return -(Consts.paperFullWidth - this.viewportWidth) * 0.5
+        },
+        initialPaperTy() {
+            return -(Consts.paperFullHeight - this.viewportHeight) * 0.5
         },
         paperWidth() {
             return Consts.paperFullWidth
         },
         paperHeight() {
             return Consts.paperFullHeight
+        },
+        viewportWidthHalf() {
+            return this.viewportWidth * 0.5
+        },
+        viewportHeightHalf() {
+            return this.viewportHeight * 0.5
+        },
+        paperTCx() {
+            return this.viewportWidthHalf - this.paperTx
+        },
+        paperTCy() {
+            return this.viewportHeightHalf - this.paperTy
         }
     },
     watch: {
@@ -54,7 +73,7 @@ export default {
         }
     },
     created() {
-        document.body.addEventListener('keydown', this.onBodyKydown)
+        document.body.addEventListener('keydown', this.onBodyKeydown)
         const self = this
         this.$nextTick(() => {
             Store.setSvg(this.$refs.svg)
@@ -62,32 +81,26 @@ export default {
             this.$el.addEventListener('mousewheel', this.onMousewheel)
         })
         setTimeout(() => {
-            self.viewportWidth = this.$el.offsetWidth
-            self.viewportHeight = this.$el.offsetHeight
-            self.paperTx = -(Consts.paperFullWidth - self.viewportWidth) * 0.5
-            self.paperTy = -(Consts.paperFullHeight - self.viewportHeight) * 0.5
+            self.viewportWidth = self.$el.offsetWidth
+            self.viewportHeight = self.$el.offsetHeight
+            self.paperTx = self.initialPaperTx
+            self.paperTy = self.initialPaperTy
         }, 0)
     },
     methods: {
-        onBodyKydown(evt) {
-            if (evt.keyCode === 8) {
-                this.deleteSelectedObject()
-            } else if (evt.keyCode === 83) {
-                if (process.platform === 'darwin') {
-                    if (evt.metaKey) {
-                        this.$emit('save')
-                    }
-                } else {
-                    if (evt.ctrlKey) {
-                        this.$emit('save')
-                    }
-                }
+        onBodyKeydown(evt) {
+            if (evt.keyCode === 8) { // backspace
+                this.deleteSelectedObject(evt)
+            } else if (evt.keyCode === 32) { // space
+                this.quickView(evt)
+            } else if (evt.keyCode === 83) { // s
+                this.save(evt)
             }
         },
 
-        deleteSelectedObject() {
+        deleteSelectedObject(evt) {
             if (this.selectedObject) {
-                if (!window.confirm('Are you sure to delete？')) {
+                if (!window.confirm('The related image file will be deleted permanently.\n\nAre you sure to delete？')) {
                     return
                 }
                 if (this.selectedObject.from) {
@@ -96,6 +109,30 @@ export default {
                     this.deleteImg(this.selectedObject)
                 }
                 this.selectedObject = null
+            }
+        },
+
+        save(evt) {
+            if (process.platform === 'darwin') {
+                if (evt.metaKey) {
+                    this.$emit('save')
+                }
+            } else {
+                if (evt.ctrlKey) {
+                    this.$emit('save')
+                }
+            }
+        },
+
+        quickView(evt) {
+            if (this.paperScale === 1) {
+                this.paperTx = this.initialPaperTx
+                this.paperTy = this.initialPaperTy
+                this.paperScale = 0.1
+            } else {
+                this.paperTx = this.initialPaperTx
+                this.paperTy = this.initialPaperTy
+                this.paperScale = 1
             }
         },
 
@@ -215,6 +252,8 @@ export default {
             if (this.isMousedownForDragging) {
                 var dx = evt.screenX - this.dragStartScreenX
                 var dy = evt.screenY - this.dragStartScreenY
+                dx /= this.paperScale
+                dy /= this.paperScale
                 this.paperTx += dx
                 this.paperTy += dy
                 this.dragStartScreenX = evt.screenX

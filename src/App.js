@@ -25,6 +25,7 @@ export default {
     data() {
         return {
             data: FileFormat,
+            dataOriginal: null,
             showDropIndicator: false,
             showPlaceholder: true,
             paperScale: 1,
@@ -35,13 +36,7 @@ export default {
     computed: {
     },
     created() {
-        const alertStr = '注意，这还是一个不完善的版本，有如下问题您需要特别注意：\n\n' +
-            '- 文件不会自动保存\n' +
-            '- 即使您编辑了文件，在下列情况下：退出、打开其它文件、重新打开文件、创建新文件，并不会提醒您先保存\n' +
-            '- 删除图片时，相关的图片文件会一并删除，不能恢复\n' +
-            '\n' +
-            'Enjoy!'
-        window.alert(alertStr)
+        window.addEventListener('beforeunload', this.onBeforeunload)
 
         this.data = {}
         this.createAppMenu()
@@ -261,9 +256,33 @@ export default {
             this.openFileAction()
         },
 
+        checkUnsaved() {
+            return this.dataOriginal &&
+                this.data &&
+                JSON.stringify(this.dataOriginal) !== JSON.stringify(this.data)
+        },
+
+        onBeforeunload(evt) {
+            if (this.checkUnsaved()) {
+                const r = window.confirm('Some changes not saved yet, are you sure to close?')
+                if (!r) {
+                    evt.preventDefault()
+                    evt.returnValue = 'o/'
+                    return 'o/'
+                }
+            }
+        },
+
         closeFile() {
             if (Store.fileRoot) {
-                // TODO: check modification
+                if (this.checkUnsaved()) {
+                    const r = window.confirm('Some changes not saved yet, are you sure to close?')
+                    if (r) {
+                        return Promise.resolve('')
+                    } else {
+                        return Promise.reject('')
+                    }
+                }
             }
             this.data = {}
             Store.setFileRoot(null)
@@ -276,6 +295,7 @@ export default {
                 const dataFile = path.resolve(f, 'data.linked')
                 const jsonStr = fs.readFileSync(dataFile).toString()
                 this.data = JSON.parse(jsonStr)
+                this.dataOriginal = JSON.parse(jsonStr)
                 Store.setFileRoot(f)
                 this.showPlaceholder = false
             } catch (ex) {
@@ -308,6 +328,7 @@ export default {
                     const jsonStr = JSON.stringify(this.data, null, '  ')
                     const dataFile = path.resolve(Store.fileRoot, 'data.linked')
                     fs.writeFileSync(dataFile, jsonStr)
+                    this.dataOriginal = JSON.parse(jsonStr)
                     console.log('saved')
                     this.toast('Saved')
                 }
