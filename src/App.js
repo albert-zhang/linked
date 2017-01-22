@@ -36,7 +36,11 @@ export default {
     computed: {
     },
     created() {
-        window.addEventListener('beforeunload', this.onBeforeunload)
+        const self = this
+        window.onbeforeunload = evt => {
+            self.onBeforeunload(evt)
+        }
+        // window.addEventListener('beforeunload', this.onBeforeunload)
 
         this.data = {}
         this.createAppMenu()
@@ -257,8 +261,7 @@ export default {
         },
 
         checkUnsaved() {
-            return this.dataOriginal &&
-                this.data &&
+            return Store.fileRoot &&
                 JSON.stringify(this.dataOriginal) !== JSON.stringify(this.data)
         },
 
@@ -266,9 +269,7 @@ export default {
             if (this.checkUnsaved()) {
                 const r = window.confirm('Some changes not saved yet, are you sure to close?')
                 if (!r) {
-                    evt.preventDefault()
-                    evt.returnValue = 'o/'
-                    return 'o/'
+                    evt.returnValue = false
                 }
             }
         },
@@ -277,9 +278,7 @@ export default {
             if (Store.fileRoot) {
                 if (this.checkUnsaved()) {
                     const r = window.confirm('Some changes not saved yet, are you sure to close?')
-                    if (r) {
-                        return Promise.resolve('')
-                    } else {
+                    if (!r) {
                         return Promise.reject('')
                     }
                 }
