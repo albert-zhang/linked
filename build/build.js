@@ -9,6 +9,16 @@ var ora = require('ora')
 var webpack = require('webpack')
 var webpackConfig = require('./webpack.prod.conf')
 
+var passedParams = require('./passed-params')
+
+var isWatch = true;
+passedParams.forEach(function(v) {
+    if (v.key === 'watch') {
+        isWatch = v.value === 'true'
+    }
+})
+webpackConfig.watch = isWatch
+
 console.log(
     '  Tip:\n' +
     '  Built files are meant to be served over an HTTP server.\n' +

@@ -38,7 +38,7 @@ export default {
     created() {
         const self = this
         window.onbeforeunload = evt => {
-            self.onBeforeunload(evt)
+            return self.onBeforeunload(evt)
         }
         // window.addEventListener('beforeunload', this.onBeforeunload)
 
@@ -234,6 +234,9 @@ export default {
         },
 
         addImageAction() {
+            if (!Store.fileRoot) {
+                return
+            }
             const r = dialog.showOpenDialog({
                 properties: ['openFile', 'multiSelections', 'createDirectory'],
                 filters: [
@@ -270,6 +273,7 @@ export default {
                 const r = window.confirm('Some changes not saved yet, are you sure to close?')
                 if (!r) {
                     evt.returnValue = false
+                    return false
                 }
             }
         },

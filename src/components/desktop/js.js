@@ -100,8 +100,14 @@ export default {
 
         deleteSelectedObject(evt) {
             if (this.selectedObject) {
-                if (!window.confirm('The related image file will be deleted permanently.\n\nAre you sure to delete？')) {
-                    return
+                if (this.selectedObject.from) {
+                    if (!window.confirm('Are you sure to delete？')) {
+                        return
+                    }
+                } else {
+                    if (!window.confirm('The related image file will be deleted permanently.\n\nAre you sure to delete？')) {
+                        return
+                    }
                 }
                 if (this.selectedObject.from) {
                     this.deleteLink(this.selectedObject)

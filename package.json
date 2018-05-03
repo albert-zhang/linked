@@ -1,6 +1,6 @@
 {
   "name": "linked",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "A Vue.js project",
   "author": "Albert Zhang <albertzhang.pro@gmail.com>",
   "main": "main.js",
@@ -10,7 +10,7 @@
     "build": "node build/build.js",
     "lint": "eslint --ext .js,.vue src",
     "start": "electron ./dist/",
-    "package": "cd ./dist/ && electron-packager ./ Linked --platform darwin --out ~/Desktop/ --overwrite --icon=../icon.icns"
+    "package": "npm run build -- watch=false && cd ./dist/ && electron-packager ./ Linked --platform darwin --out ~/Desktop/ --overwrite --icon=../icon.icns"
   },
   "dependencies": {
     "bootstrap": "^3.3.7",
